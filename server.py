@@ -40,7 +40,7 @@ def dump_response(response):
 def upload_files():
     print("--- Upload a local file")
     isDifferent = False
-    response = upload("img/escala.jpg", tags="")
+    response = upload("img/original.jpg", tags="")
     dump_response(response)
     url, options = cloudinary_url(
         response['public_id'],
