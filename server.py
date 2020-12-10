@@ -7,6 +7,10 @@ import numpy as np
 import urllib.request as urllib
 import requests
 from flask_cors import CORS
+import smtplib
+
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 #cloudinary
 from cloudinary.api import delete_resources_by_tag, resources_by_tag, delete_resources
@@ -21,6 +25,16 @@ load_dotenv(os.path.join(project_folder, '.env'))
 
 API_KEY = os.getenv('API_KEY')
 API_SECRET = os.getenv('API_SECRET')
+EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD')
+
+# Email config
+me = "cartestforproject@gmail.com"
+you = "choskasdelta@gmail.com"
+
+msg = MIMEMultipart('alternative')
+msg['Subject'] = "Se ha detectado movimiento"
+msg['From'] = me
+msg['To'] = you
 
 #CLOUDINARY function handler
 cloudinary.config(
@@ -40,7 +54,7 @@ def dump_response(response):
 def upload_files():
     print("--- Upload a local file")
     isDifferent = False
-    response = upload("img/original.jpg", tags="")
+    response = upload("img/escala.jpg", tags="")
     dump_response(response)
     url, options = cloudinary_url(
         response['public_id'],
@@ -68,6 +82,24 @@ def upload_files():
             delete_resources(public_id)
             url = ""
         else:
+            html = f"""\
+                    <html>
+                    <head></head>
+                    <body>
+                    <p>Hola!<br>
+                    Se ha detectado movimiento inusual<br>
+                    <img width=300 height=200 src={url}> </img>
+                    </p>
+                    </body>
+                    </html> 
+                    """
+            part2 = MIMEText(html, 'html')
+            msg.attach(part2)
+            s = smtplib.SMTP('smtp.gmail.com', 587)
+            s.starttls()
+            s.login('cartestforproject@gmail.com', EMAIL_PASSWORD)
+            s.sendmail(me, you, msg.as_string())
+            s.quit()
             print("las imagenes son diferentes")
             print("mostando la imagen diferente ->")
             isDifferent = True
