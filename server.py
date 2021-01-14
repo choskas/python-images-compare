@@ -29,6 +29,7 @@ EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD')
 
 # Email config
 me = "cartestforproject@gmail.com"
+## a donde se mandan
 you = "choskasdelta@gmail.com"
 
 msg = MIMEMultipart('alternative')
@@ -54,16 +55,20 @@ def dump_response(response):
 def upload_files():
     print("--- Upload a local file")
     isDifferent = False
+    ## foto que se tomo recientemente
     response = upload("img/escala.jpg", tags="")
     dump_response(response)
+    ## se obtiene la imagen
     url, options = cloudinary_url(
         response['public_id'],
         format=response['format'],
     )
     public_id = response['public_id']
+    ## abrir la imagen
     url_response = urllib.urlopen(url)
     img_array = np.array(bytearray(url_response.read()), dtype=np.uint8)
     duplicate = cv2.imdecode(img_array, -1)
+    ## url de la imagen original 
     originalUrl = "https://res.cloudinary.com/choskas/image/upload/v1607385168/cg9lnefzs5wbdslubtzz.jpg"
     url_response2 = urllib.urlopen(originalUrl)
     img_array2 = np.array(bytearray(url_response2.read()), dtype=np.uint8)
@@ -82,6 +87,7 @@ def upload_files():
             delete_resources(public_id)
             url = ""
         else:
+            ## correo en html
             html = f"""\
                     <html>
                     <head></head>
@@ -93,6 +99,7 @@ def upload_files():
                     </body>
                     </html> 
                     """
+            ## funciones para mandar emails        
             part2 = MIMEText(html, 'html')
             msg.attach(part2)
             s = smtplib.SMTP('smtp.gmail.com', 587)
